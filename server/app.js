@@ -7,7 +7,7 @@ import { config } from './config/config.js';
 import tweetsRouter from './router/tweets.js';
 import authRouter from './router/auth.js';
 import { initSocket } from './connection/socket.js';
-import { db } from './db/database.js';
+import { sequelize } from './db/database.js';
 
 const app = express();
 
@@ -41,18 +41,9 @@ app.use((error, req, res, next) => {
 });
 
 /**
- * @description DB
+ * @description Sequelize 연결 및 실행
  */
-db.getConnection()
-    .then((connection) => console.log(`DATABASE: ${config.db.database}, HOST: ${config.db.host}`))
-    .catch((error) => console.error(`서버를 시작할 수 없습니다. ${error}`));
-
-/**
- * @description 서버 실행
- */
-const server = app.listen(config.host.port);
-
-/**
- * @description 소켓
- */
-initSocket(server);
+sequelize.sync().then(() => {
+    const server = app.listen(config.host.port);
+    initSocket(server);
+});

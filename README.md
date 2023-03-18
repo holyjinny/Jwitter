@@ -6,4 +6,8 @@ nvm use 16.12.0 으로 전환 후 실행하시면 됩니다.
 
 # DB
 
-현재 버전은 MySQL을 사용하였습니다.
+v1.0.0 - MySQL은 MySQL을 사용하였습니다.
+
+# Sequelize
+
+MySQL을 Sequelize로 변경해보기.

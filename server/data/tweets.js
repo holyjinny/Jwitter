@@ -1,7 +1,49 @@
-import { db } from '../db/database.js';
+import SQ from 'sequelize';
+import { sequelize } from '../db/database.js';
+import { User } from './auth.js';
 
-const SELECT_JOIN = 'SELECT tw.id, tw.text, tw.createdAt, tw.userId, us.username, us.name, us.url  FROM tweets as tw JOIN users as us ON tw.userId = us.id';
-const ORDER_DESC = 'ORDER BY tw.createdAt DESC';
+const DataTypes = SQ.DataTypes;
+
+const Sequelize = SQ.Sequelize;
+
+const Tweet = sequelize.define(
+    'tweet',
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            allowNull: false,
+            primaryKey: true,
+            unique: true,
+        },
+        text: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+    }
+);
+
+/**
+ * @description 관계 정의 (FK)
+ */
+Tweet.belongsTo(User);
+
+const INCLUDE_USER = {
+    attributes: [
+        'id', 'text', 'createdAt', 'userId',
+        [Sequelize.col('user.username'), 'username'],
+        [Sequelize.col('user.name'), 'name'],
+        [Sequelize.col('user.url'), 'url'],
+    ],
+    include: {
+        model: User,
+        attributes: [],
+    },
+};
+
+const ORDER_DESC = {
+    order: [['createdAt', 'DESC']],
+};
 
 /**
  * @method GET
@@ -10,9 +52,7 @@ const ORDER_DESC = 'ORDER BY tw.createdAt DESC';
  * @description 모든 트윗 불러오기
  */
 export async function getAll() {
-    return db
-        .execute(`${SELECT_JOIN} ${ORDER_DESC}`)
-        .then((result) => result[0]);
+    return Tweet.findAll({ ...INCLUDE_USER, ...ORDER_DESC });
 }
 
 /**
@@ -22,9 +62,14 @@ export async function getAll() {
  * @description 해당하는 유저의 트윗 불러오기
  */
 export async function getAllByUsername(username) {
-    return db
-        .execute(`${SELECT_JOIN} WHERE username=? ${ORDER_DESC}`, [username])
-        .then((result) => result[0]);
+    return Tweet.findAll({
+        ...INCLUDE_USER,
+        ...ORDER_DESC,
+        include: {
+            ...INCLUDE_USER.include,
+            where: { username },
+        },
+    });
 }
 
 /**
@@ -34,9 +79,10 @@ export async function getAllByUsername(username) {
  * @description 해당하는 아이디의 트윗 불러오기
  */
 export async function getByid(id) {
-    return db
-        .execute(`${SELECT_JOIN} WHERE tw.id=?`, [id])
-        .then((result) => result[0][0]);
+    return Tweet.findOne({
+        where: { id },
+        ...INCLUDE_USER,
+    });
 }
 
 /**
@@ -46,9 +92,8 @@ export async function getByid(id) {
  * @description 트윗 작성하기
  */
 export async function create(text, userId) {
-    return db
-        .execute('INSERT INTO tweets (text, createdAt, userId) VALUES(?, ?, ?)', [text, new Date(), userId])
-        .then((result) => getByid(result[0].insertId));
+    return Tweet.create({ text, userId })
+        .then((data) => this.getByid(data.dataValues.id));
 }
 
 /**
@@ -58,9 +103,11 @@ export async function create(text, userId) {
  * @description 해당하는 아이디의 트윗 수정하기
  */
 export async function update(id, text) {
-    return db
-        .execute('UPDATE tweets SET text=? WHERE id=?', [text, id])
-        .then(() => getByid(id));
+    return Tweet.findByPk(id, INCLUDE_USER)
+        .then((tweet) => {
+            tweet.text = text;
+            return tweet.save();
+        });
 }
 
 /**
@@ -70,5 +117,6 @@ export async function update(id, text) {
  * @description 해당하는 아이디의 트윗 삭제하기
  */
 export async function remove(id) {
-    return db.execute('DELETE FROM tweets WHERE id=?', [id]);
+    return Tweet.findByPk(id)
+        .then((tweet) => { tweet.destroy(); });
 }
