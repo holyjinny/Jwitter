@@ -22,4 +22,10 @@ export const config = {
     bcrypt: {
         saltRounds: parseInt(required('BCRYPT_SALT_ROUNDS')),
     },
+    db: {
+        host: required('DB_HOST'),
+        user: required('DB_USER'),
+        database: required('DB_DATABASE'),
+        password: required('DB_PASSWORD'),
+    },
 };

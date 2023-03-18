@@ -1,6 +1,5 @@
 import express from 'express';
 import { } from 'express-async-errors';
-import { Server } from 'socket.io';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -8,6 +7,7 @@ import { config } from './config/config.js';
 import tweetsRouter from './router/tweets.js';
 import authRouter from './router/auth.js';
 import { initSocket } from './connection/socket.js';
+import { db } from './db/database.js';
 
 const app = express();
 
@@ -40,6 +40,19 @@ app.use((error, req, res, next) => {
     res.sendStatus(500);
 });
 
+/**
+ * @description DB
+ */
+db.getConnection()
+    .then((connection) => console.log(`DATABASE: ${config.db.database}, HOST: ${config.db.host}`))
+    .catch((error) => console.error(`서버를 시작할 수 없습니다. ${error}`));
+
+/**
+ * @description 서버 실행
+ */
 const server = app.listen(config.host.port);
 
+/**
+ * @description 소켓
+ */
 initSocket(server);
