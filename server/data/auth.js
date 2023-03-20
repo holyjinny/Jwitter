@@ -1,18 +1,36 @@
-import MongoDB from 'mongodb';
-import { getUsers } from "../db/database.js";
+import Mongoose from 'mongoose';
+import { useVirtualId } from "../db/database.js";
 
-const ObjectId = MongoDB.ObjectId;
+const userSchema = new Mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    url: String,
+});
+
+useVirtualId(userSchema);
+
+const User = Mongoose.model('User', userSchema);
 
 export async function findByUsername(username) {
-    return getUsers()
-        .findOne({ username })
-        .then(mapOptionalUser);
+    return User.findOne({ username });
 }
 
 export async function findById(id) {
-    return getUsers()
-        .findOne({ _id: new ObjectId(id) })
-        .then(mapOptionalUser);
+    return User.findById(id);
 }
 
 /**
@@ -22,11 +40,7 @@ export async function findById(id) {
  * @description 회원 가입
  */
 export async function createUser(user) {
-    return getUsers()
-        .insertOne(user)
-        .then((data) => data.insertedId.toString());
-}
-
-function mapOptionalUser(user) {
-    return user ? { ...user, id: user._id.toString() } : user;
+    return new User(user)
+        .save()
+        .then((data) => data.id);
 }

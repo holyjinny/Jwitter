@@ -1,18 +1,23 @@
-import MongoDB from 'mongodb';
+import Mongoose from 'mongoose';
 import { config } from '../config/config.js';
 
-let db;
-
 export async function connectDB() {
-    return MongoDB.MongoClient.connect(config.db.host)
-        .then((client) => {
-            db = client.db();
-        });
+    return Mongoose.connect(config.db.host);
 };
 
-export function getUsers() {
-    return db.collection('users');
+/**
+* @description _id -> id로 읽어오기 및 JSON으로 변환할 때, 콘솔에 포함되도록 설정
+*/
+export function useVirtualId(schema) {
+    schema.virtual('id').get(function () {
+        return this._id.toString();
+    });
+
+    schema.set('toJSON', { virtuals: true });
+    schema.set('toObject', { virtuals: true });
 };
+
+let db;
 
 export function getTweets() {
     return db.collection('tweets');

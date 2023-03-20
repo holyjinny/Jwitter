@@ -1,8 +1,32 @@
-import MongoDB from 'mongodb';
-import { getTweets } from "../db/database.js";
+import Mongoose from 'mongoose';
+import { useVirtualId } from "../db/database.js";
 import * as userRepository from '../data/auth.js';
 
-const ObjectId = MongoDB.ObjectId;
+const tweetSchema = Mongoose.Schema({
+    text: {
+        type: String,
+        required: true,
+    },
+    userId: {
+        type: String,
+        required: true,
+    },
+    username: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    url: String,
+},
+    { timestamps: true },
+);
+
+useVirtualId(tweetSchema);
+
+const Tweet = Mongoose.model('Tweet', tweetSchema);
 
 /**
  * @method GET
@@ -11,11 +35,9 @@ const ObjectId = MongoDB.ObjectId;
  * @description 모든 트윗 불러오기
  */
 export async function getAll() {
-    return getTweets()
+    return Tweet
         .find()
-        .sort({ createdAt: -1 })
-        .toArray()
-        .then(mapTweets);
+        .sort({ createdAt: -1 });
 }
 
 /**
@@ -25,11 +47,9 @@ export async function getAll() {
  * @description 해당하는 유저의 트윗 불러오기
  */
 export async function getAllByUsername(username) {
-    return getTweets()
+    return Tweet
         .find({ username })
-        .sort({ createdAt: -1 })
-        .toArray()
-        .then(mapTweets);
+        .sort({ createdAt: -1 });
 }
 
 /**
@@ -39,9 +59,7 @@ export async function getAllByUsername(username) {
  * @description 해당하는 아이디의 트윗 불러오기
  */
 export async function getByid(id) {
-    return getTweets()
-        .findOne({ _id: new ObjectId(id) })
-        .then(mapOptionalTweet);
+    return Tweet.findById(id);
 }
 
 /**
@@ -51,18 +69,15 @@ export async function getByid(id) {
  * @description 트윗 작성하기
  */
 export async function create(text, userId) {
-    const { name, username, url } = await userRepository.findById(userId);
-    const tweet = {
-        text,
-        createdAt: new Date(),
-        userId,
-        username: username,
-        name: name,
-        url: url,
-    };
-    return getTweets()
-        .insertOne(tweet)
-        .then((data) => mapOptionalTweet({ ...tweet, _id: data.insertedId }));
+    return userRepository.findById(userId)
+        .then((user) => new Tweet(
+            {
+                text,
+                userId,
+                username: user.username,
+                name: user.name,
+            }
+        ).save());
 }
 
 /**
@@ -72,14 +87,7 @@ export async function create(text, userId) {
  * @description 해당하는 아이디의 트윗 수정하기
  */
 export async function update(id, text) {
-    return getTweets()
-        .findOneAndUpdate(
-            { _id: new ObjectId(id) },
-            { $set: { text } },
-            { returnDocument: 'after' },
-        )
-        .then((result) => result.value)
-        .then(mapOptionalTweet);
+    return Tweet.findByIdAndUpdate(id, { text }, { returnOriginal: false });
 }
 
 /**
@@ -89,14 +97,5 @@ export async function update(id, text) {
  * @description 해당하는 아이디의 트윗 삭제하기
  */
 export async function remove(id) {
-    return getTweets()
-        .deleteOne({ _id: new ObjectId(id) });
-}
-
-function mapOptionalTweet(tweet) {
-    return tweet ? { ...tweet, id: tweet._id.toString() } : tweet;
-}
-
-function mapTweets(tweets) {
-    return tweets.map(mapOptionalTweet);
+    return Tweet.findByIdAndDelete(id);
 }
