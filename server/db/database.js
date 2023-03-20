@@ -16,9 +16,3 @@ export function useVirtualId(schema) {
     schema.set('toJSON', { virtuals: true });
     schema.set('toObject', { virtuals: true });
 };
-
-let db;
-
-export function getTweets() {
-    return db.collection('tweets');
-};
