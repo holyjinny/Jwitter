@@ -12,9 +12,6 @@ function required(key, defaultValue = undefined) {
 }
 
 export const config = {
-    host: {
-        port: parseInt(required('HOST_PORT', 8080)),
-    },
     jwt: {
         secretKey: required('JWT_SECRET'),
         expiresInSec: parseInt(required('JWT_EXPIRES_SEC')),
@@ -27,5 +24,9 @@ export const config = {
         user: required('DB_USER'),
         database: required('DB_DATABASE'),
         password: required('DB_PASSWORD'),
+    },
+    port: parseInt(required('PORT', 8080)),
+    cors: {
+        allowedOrigin: required('CORS_ALLOW_ORIGIN'),
     },
 };
