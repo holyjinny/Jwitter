@@ -23,6 +23,6 @@ export const config = {
         saltRounds: parseInt(required('BCRYPT_SALT_ROUNDS')),
     },
     db: {
-        host: required('DB_HOST'),
+        host: required('MONGO_HOST'),
     },
 };
