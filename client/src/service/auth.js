@@ -26,10 +26,8 @@ export default class AuthService {
   }
 
   async me() {
-    const token = this.tokenStorage.getToken();
     return this.http.fetch('/auth/me', {
       method: 'GET',
-      headers: { Authorization: `Bearer ${token}` },
     });
   }
 
@@ -37,5 +35,12 @@ export default class AuthService {
     return this.http.fetch('/auth/logout', {
       method: 'POST',
     });
+  }
+
+  async csrfToken() {
+    const resp = await this.http.fetch('/auth/csrf-token', {
+      method: 'GET',
+    });
+    return resp.csrfToken;
   }
 }

@@ -99,3 +99,18 @@ export async function me(req, res, next) {
     }
     res.status(200).json({ token: req.token, username: user.username });
 }
+
+/**
+ * @method GET
+ * @api /auth/csrf-token
+ * @access public
+ * @description CSRF token 요청
+ */
+export async function csrfToken(req, res, next) {
+    const csrfToken = await generateCSRFToken();
+    res.status(200).json({ csrfToken });
+}
+
+async function generateCSRFToken() {
+    return bcrypt.hash(config.csrf.plainToken, 1);
+}
