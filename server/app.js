@@ -9,6 +9,7 @@ import tweetsRouter from './router/tweets.js';
 import authRouter from './router/auth.js';
 import { initSocket } from './connection/socket.js';
 import { connectDB } from './db/database.js';
+import { csrfCheck } from './middleware/csrf.js';
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(cors(corsOption));
 app.use(morgan('tiny'));
+app.use(csrfCheck);
 
 /**
  * @description 라우터

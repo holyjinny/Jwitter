@@ -38,4 +38,12 @@ router.post('/logout', authController.logout);
  */
 router.get('/me', isAuth, authController.me);
 
+/**
+ * @method GET
+ * @api /auth/csrf-token
+ * @access public
+ * @description CSRF token 요청
+ */
+router.get('/csrf-token', authController.csrfToken);
+
 export default router;
