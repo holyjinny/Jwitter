@@ -25,4 +25,7 @@ export const config = {
     db: {
         host: required('MONGO_HOST'),
     },
+    cors: {
+        allowedOrigin: required('CORS_ALLOW_ORIGIN'),
+    },
 };

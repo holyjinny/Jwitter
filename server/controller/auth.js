@@ -12,6 +12,16 @@ function createJwtToken(id) {
     return jwt.sign({ id }, jwtSecretKey, { expiresIn: jwtExpiresInDays });
 }
 
+function setToken(res, token) {
+    const options = {
+        maxAge: config.jwt.expiresInSec * 1000,
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+    };
+    res.cookie('token', token, options);
+}
+
 /**
  * @method POST
  * @api /auth/signup
@@ -35,6 +45,7 @@ export async function signup(req, res) {
     });
 
     const token = createJwtToken(userId);
+    setToken(res, token);
     res.status(201).json({ token, username });
 }
 
@@ -59,7 +70,19 @@ export async function login(req, res) {
     }
 
     const token = createJwtToken(user.id);
+    setToken(res, token);
     res.status(200).json({ token, username });
+}
+
+/**
+ * @method POST
+ * @api /auth/logout
+ * @access public
+ * @description 로그아웃
+ */
+export async function logout(req, res, next) {
+    res.cookie('token', '');
+    res.status(200).json({ message: '로그아웃을 성공적으로 하셨습니다.' });
 }
 
 /**

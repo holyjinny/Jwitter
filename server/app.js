@@ -1,8 +1,9 @@
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import { } from 'express-async-errors';
-import cors from 'cors';
-import morgan from 'morgan';
 import helmet from 'helmet';
+import morgan from 'morgan';
 import { config } from './config/config.js';
 import tweetsRouter from './router/tweets.js';
 import authRouter from './router/auth.js';
@@ -11,12 +12,19 @@ import { connectDB } from './db/database.js';
 
 const app = express();
 
+const corsOption = {
+    origin: config.cors.allowedOrigin,
+    optionsSuccessStatus: 200,
+    credentials: true,
+};
+
 /**
  * @description 미들웨어
  */
 app.use(express.json());
+app.use(cookieParser());
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOption));
 app.use(morgan('tiny'));
 
 /**
