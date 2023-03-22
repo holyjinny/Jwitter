@@ -23,6 +23,14 @@ router.post('/signup', authValidator.signup, authController.signup);
 router.post('/login', authValidator.login, authController.login);
 
 /**
+ * @method POST
+ * @api /auth/logout
+ * @access public
+ * @description 로그아웃
+ */
+router.post('/logout', authController.logout);
+
+/**
  * @method GET
  * @api /auth/me
  * @access public

@@ -3,6 +3,7 @@ import { } from 'express-async-errors';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { config } from './config/config.js';
 import tweetsRouter from './router/tweets.js';
 import authRouter from './router/auth.js';
@@ -14,12 +15,14 @@ const app = express();
 const corsOption = {
     origin: config.cors.allowedOrigin,
     optionsSuccessStatus: 200,
+    credentials: true,
 };
 
 /**
  * @description 미들웨어
  */
 app.use(express.json());
+app.use(cookieParser());
 app.use(helmet());
 app.use(cors(corsOption));
 app.use(morgan('tiny'));
