@@ -81,7 +81,7 @@ export async function login(req, res) {
  * @description 로그아웃
  */
 export async function logout(req, res, next) {
-    res.cookie('token', '');
+    setToken(res, '');
     res.status(200).json({ message: '로그아웃을 성공적으로 하셨습니다.' });
 }
 
