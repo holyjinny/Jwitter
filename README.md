@@ -18,5 +18,5 @@ CSRF Token을 통해 보안에 신경써보기.
 
 # Rate Limiter
 
-BE: Rate Limiter
+BE: Rate Limiter <br>
 FE: Axios, Axios-retry
