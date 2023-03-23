@@ -10,6 +10,7 @@ import authRouter from './router/auth.js';
 import { initSocket } from './connection/socket.js';
 import { sequelize } from './db/database.js';
 import { csrfCheck } from './middleware/csrf.js';
+import rateLimit from './middleware/rate-limiter.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(helmet());
 app.use(cors(corsOption));
 app.use(morgan('tiny'));
 app.use(csrfCheck);
+app.use(rateLimit);
 
 /**
  * @description 라우터
